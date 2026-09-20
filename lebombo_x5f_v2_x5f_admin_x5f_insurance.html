@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lebombo Fright Pass v2 - Admin + Insurance</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,sans-serif}</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+<div class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-20">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 bg-orange-500 rounded-lg flex items-center justify-center font-black text-sm">L</div>
+    <div><div class="font-bold leading-none tracking-tight">LEBOMBO FRIGHT PASS (LFP) v2</div><div class="text-[11px] text-slate-400">KM7 • BMA • SARS • DAFF • C-BRTA • KM4 MOZ</div></div>
+  </div>
+  <div class="flex gap-2">
+    <button id="btnTrans" class="px-4 py-2 rounded bg-white text-slate-900 font-semibold text-sm">Transporter View</button>
+    <button id="btnAdmin" class="px-4 py-2 rounded bg-slate-700 text-white font-semibold text-sm">TRAC / BMA Admin</button>
+  </div>
+</div>
+
+<div id="transView" class="p-4 max-w-7xl mx-auto space-y-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="text-[11px] text-slate-500 uppercase">KM7 Queue</div><div class="text-2xl font-black">127 / 250</div><div class="text-xs text-orange-600 mt-1">78% full - Lanes A-B critical</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="text-[11px] text-slate-500 uppercase">Avg Wait Today</div><div class="text-2xl font-black">3.4h</div><div class="text-xs text-green-600 mt-1">↓ 5.1h vs 2024 peak</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="text-[11px] text-slate-500 uppercase">Slots Free Next Hour</div><div class="text-2xl font-black">42</div><div class="text-xs text-slate-500 mt-1">Next window: 14:00-15:00</div></div>
+    <div class="bg-white p-4 rounded-xl shadow border"><div class="text-[11px] text-slate-500 uppercase">Insurance Compliant</div><div class="text-2xl font-black">81%</div><div class="text-xs text-red-600 mt-1">19% blocked at gate</div></div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="md:col-span-2 bg-white rounded-xl shadow border p-5">
+      <h2 class="font-bold mb-1">New Pre-Booking</h2><p class="text-xs text-slate-500 mb-3">Linked to SARS eFiling, BMA Movement Control, DHA. QR only issued when all green.</p>
+      <form id="bookingForm" class="grid grid-cols-2 gap-3 text-sm">
+        <input class="border rounded-lg p-2.5" placeholder="Company - e.g. Grindrod Logistics" id="company" required>
+        <input class="border rounded-lg p-2.5" placeholder="Truck Reg - JY 45 RT GP" id="reg" required>
+        <input class="border rounded-lg p-2.5" placeholder="Driver Name" id="driver">
+        <input class="border rounded-lg p-2.5" placeholder="Passport No" id="passport">
+        <select class="border rounded-lg p-2.5" id="loadType"><option>Coal</option><option>Chrome</option><option>Magnetite</option><option>Ferrochrome</option><option>General Cargo</option><option>Perishables - Priority</option></select>
+        <input class="border rounded-lg p-2.5" type="number" placeholder="Tons - e.g. 34" id="tons" required>
+        <input class="border rounded-lg p-2.5" placeholder="Origin - Mine/Yard" id="origin">
+        <select class="border rounded-lg p-2.5" id="dest"><option>Maputo Port</option><option>Matola Terminal</option><option>Maputo City</option><option>Beira Corridor Transit</option></select>
+        <select class="border rounded-lg p-2.5" id="designation"><option>Export SA→MZ</option><option>Import MZ→SA</option><option>Transit</option></select>
+        <input class="border rounded-lg p-2.5" type="datetime-local" id="eta">
+        <input class="border rounded-lg p-2.5" placeholder="SARS Declaration Ref" id="sarsRef">
+        <div class="col-span-2 border-t pt-4 mt-2">
+          <div class="flex justify-between items-center"><div class="font-bold text-orange-700 text-sm">Mozambique Compulsory Third-Party Liability - Seguro Obrigatório *</div><span class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded">Lei Decreto 2/2020</span></div>
+          <p class="text-[11px] text-slate-500 mt-1">All foreign trucks must have valid Mozambican insurance to cross Ressano Garcia. Verified against INM database.</p>
+          <div class="grid grid-cols-2 gap-2 mt-3">
+            <select class="border rounded-lg p-2.5" id="insurer"><option value="">Select Insurer</option><option>EMOSE - Empresa Moçambicana de Seguros</option><option>Hollard Mozambique</option><option>ICE Seguros</option><option>Seguradora Internacional</option><option>Other / Buy at KM7 Kiosk</option></select>
+            <input class="border rounded-lg p-2.5" placeholder="Policy Number - e.g. MZ-8845120" id="policy">
+            <input class="border rounded-lg p-2.5" type="date" id="insFrom"><input class="border rounded-lg p-2.5" type="date" id="insTo">
+            <input class="border rounded-lg p-2.5" placeholder="Coverage - MT 1,500,000" id="cover" value="1500000">
+            <div id="insBadge" class="flex items-center text-xs font-bold p-2.5 rounded-lg bg-slate-100 border">Enter Valid To date to validate</div>
+          </div>
+          <div id="insBlock" class="hidden mt-3 p-3 bg-red-50 text-red-800 text-xs rounded-lg border border-red-200 leading-relaxed"><b>⛔ BORDER RELEASE BLOCKED:</b> Cannot generate Lebombo QR Pass without valid Seguro Obrigatório. Mozambican law prohibits entry to Ressano Garcia without third-party liability insurance. Please renew at KM7 Kiosk or upload valid policy. <i>Entrada proibida sem Seguro Obrigatório válido - Art.5</i></div>
+        </div>
+        <button class="col-span-2 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold mt-2" type="submit">Create Pre-Booking + Verify All Agencies + Generate QR</button>
+      </form>
+    </div>
+    <div class="space-y-4">
+      <div class="bg-white rounded-xl shadow border p-5">
+        <h3 class="font-bold text-sm mb-1">Buy Insurance at KM7 Kiosk</h3>
+        <p class="text-xs text-slate-500 mb-3">Instant issuance, synced to BMA & KM4 Mozambique. No internet needed for driver.</p>
+        <label class="text-xs font-semibold">Truck Class</label>
+        <select id="truckClass" class="w-full border rounded-lg p-2.5 text-sm mb-3"><option value="850,1850,4200">Rigid 8-16t - Local</option><option value="1200,2400,5400" selected>Articulated 30-34t - Standard</option><option value="1500,3100,7000">Superlink / Abnormal 50t+</option></select>
+        <div class="grid grid-cols-3 gap-2 text-center text-sm">
+          <button class="buyBtn border rounded-lg p-2.5 hover:bg-slate-50" data-days="7" data-p1="850">7 days<br><span class="font-bold">R850</span></button>
+          <button class="buyBtn border rounded-lg p-2.5 bg-orange-50 border-orange-400 ring-1 ring-orange-400" data-days="30" data-p1="2400">30 days<br><span class="font-bold">R2,400</span></button>
+          <button class="buyBtn border rounded-lg p-2.5 hover:bg-slate-50" data-days="90" data-p1="5400">90 days<br><span class="font-bold">R5,400</span></button>
+        </div>
+        <button id="quickBuy" class="w-full mt-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-lg text-sm font-semibold">Issue KM7 Policy Now - Instant Valid</button>
+        <p class="text-[10px] text-slate-400 mt-2">Partners: EMOSE, Hollard, ICE - Printed QR receipt at KM7 admin office</p>
+      </div>
+      <div class="bg-slate-900 text-white rounded-xl p-4">
+        <div class="text-xs font-bold mb-2">INTEGRATION STATUS</div>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between"><span>BMA Movement</span><span class="text-green-400">● Connected</span></div>
+          <div class="flex justify-between"><span>SARS Customs</span><span class="text-green-400">● Connected</span></div>
+          <div class="flex justify-between"><span>DHA Immigration</span><span class="text-green-400">● Connected</span></div>
+          <div class="flex justify-between"><span>DAFF Agriculture</span><span class="text-amber-400">● Syncing</span></div>
+          <div class="flex justify-between"><span>INM Insurance Moz</span><span class="text-green-400">● Connected</span></div>
+          <div class="flex justify-between"><span>KM4 Ressano Garcia</span><span class="text-amber-400">● Delayed 2m</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow border p-5 overflow-auto">
+    <h3 class="font-bold mb-3">Live Queue - KM7 → Lebombo - Insurance Gate Enforced</h3>
+    <table class="w-full text-xs" id="queueTable"><thead class="text-slate-500 border-b"><tr><th class="text-left p-2">Booking ID</th><th class="text-left p-2">Company / Reg</th><th class="text-left p-2">Load / Tons</th><th class="text-left p-2">Destination</th><th class="text-left p-2">Insurance</th><th class="text-left p-2">SARS / BMA</th><th class="text-left p-2">QR</th></tr></thead><tbody id="queueBody"></tbody></table>
+  </div>
+</div>
+
+<div id="adminView" class="hidden p-4 max-w-7xl mx-auto space-y-4">
+  <div class="bg-slate-900 text-white rounded-xl p-5 border border-slate-700">
+    <div class="flex justify-between items-start"><div><h2 class="font-black text-lg tracking-tight">TRAC / BMA CONTROL TOWER</h2><p class="text-xs text-slate-400">KM7 Holding Facility - Sequencing & Compliance Enforcement</p></div><div class="text-right text-xs"><div class="bg-green-600 px-3 py-1 rounded-full">LIVE</div><div class="mt-1 text-slate-400">N4: Hectorspruit → Komatipoort</div></div></div>
+    <div class="grid grid-cols-4 gap-4 mt-5">
+      <div class="bg-slate-800 p-3 rounded-lg"><div class="text-[11px] text-slate-400">LANE A - COAL • Pre-cleared Priority</div><div class="h-2.5 bg-slate-700 rounded mt-2"><div class="h-2.5 bg-orange-500 rounded" style="width:82%"></div></div><div class="flex justify-between text-xs mt-2"><span>42 trucks</span><span class="text-orange-400">82%</span></div></div>
+      <div class="bg-slate-800 p-3 rounded-lg"><div class="text-[11px] text-slate-400">LANE B - CHROME / MAGNETITE</div><div class="h-2.5 bg-slate-700 rounded mt-2"><div class="h-2.5 bg-red-500 rounded" style="width:65%"></div></div><div class="flex justify-between text-xs mt-2"><span>35 trucks</span><span class="text-red-400">65%</span></div></div>
+      <div class="bg-slate-800 p-3 rounded-lg"><div class="text-[11px] text-slate-400">LANE C - GENERAL CARGO</div><div class="h-2.5 bg-slate-700 rounded mt-2"><div class="h-2.5 bg-blue-500 rounded" style="width:40%"></div></div><div class="flex justify-between text-xs mt-2"><span>18 trucks</span><span>40%</span></div></div>
+      <div class="bg-slate-800 p-3 rounded-lg"><div class="text-[11px] text-slate-400">LANE D - PRIORITY / PERISHABLE</div><div class="h-2.5 bg-slate-700 rounded mt-2"><div class="h-2.5 bg-green-500 rounded" style="width:25%"></div></div><div class="flex justify-between text-xs mt-2"><span>5 trucks</span><span class="text-green-400">25%</span></div></div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2 text-xs"><span class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">N4 Queue: 4.2km ↓ (was 27km) Target &lt;3km</span><span class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">Calls/hr: 38</span><span class="bg-red-900/50 border border-red-800 px-3 py-1.5 rounded-full">⚠ 3 Bypass Detected: Strydomblok Road</span><span class="bg-amber-900/30 border border-amber-800 px-3 py-1.5 rounded-full">Insurance Block: 24 trucks</span></div>
+  </div>
+
+  <div class="grid md:grid-cols-4 gap-4">
+    <div class="md:col-span-3 bg-white rounded-xl shadow border p-4 overflow-auto">
+      <div class="flex justify-between mb-3"><h3 class="font-bold">Sequencing Console - Call Order to Lebombo Main Gate</h3><div class="flex gap-2"><button class="text-xs bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg font-semibold" onclick="callNext(5)">Call Next 5 Pre-Cleared</button><button class="text-xs bg-slate-200 px-3 py-1.5 rounded-lg" onclick="alert('Slots closed for Crocodile Gorge maintenance 08:00-14:00')">Close Slots - Gorge Works</button></div></div>
+      <table class="w-full text-xs"><thead class="border-b text-slate-500"><tr><th class="text-left p-2">#</th><th class="text-left p-2">Priority</th><th class="text-left p-2">Company / Reg</th><th class="text-left p-2">Load</th><th class="text-left p-2">Insurance</th><th class="text-left p-2">Clearance</th><th class="text-left p-2">Slot</th><th class="text-left p-2">Actions</th></tr></thead><tbody id="adminBody"></tbody></table>
+    </div>
+    <div class="space-y-3">
+      <div class="bg-white rounded-xl shadow border p-4"><h4 class="font-bold text-sm">Slot Manager</h4><div class="mt-3 text-xs"><label class="font-semibold">Hourly Capacity</label><input type="range" min="20" max="120" value="80" class="w-full mt-1" id="capRange"><div id="capVal" class="mt-1 font-bold">80 trucks / hour</div><div class="mt-3 flex gap-2"><button class="bg-green-50 border border-green-200 px-3 py-1.5 rounded-lg text-xs">Open All</button><button class="bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg text-xs">Close A-B</button></div></div></div>
+      <div class="bg-white rounded-xl shadow border p-4"><h4 class="font-bold text-sm">Non-Compliant - Enforcement</h4><ul class="text-xs mt-2 space-y-2"><li class="p-2 bg-red-50 rounded border border-red-100">• <b>JY 12 XY GP</b> - No KM7 check-in, detected Coopersdal 11:42<br><span class="text-[10px]">Action: Flag + R5000 + Return to KM7</span></li><li class="p-2 bg-red-50 rounded border border-red-100">• <b>BK 33 ZZ MP</b> - Expired Seguro EMOSE 2025-11-01<br><span class="text-[10px]">Action: Block at KM7 - Buy Insurance</span></li><li class="p-2 bg-amber-50 rounded border border-amber-100">• <b>MP 01 TR MP</b> - SARS doc vs cargo mismatch 32t declared 30t<br><span class="text-[10px]">Action: Hold for inspection Bay 2</span></li></ul></div>
+      <div class="bg-white rounded-xl shadow border p-4"><h4 class="font-bold text-sm">BMA Officer Checklist</h4><ul class="text-xs mt-2 space-y-1.5"><li>✓ SARS eManifest verified</li><li>✓ C-BRTA Cross-Border Permit</li><li>⚠ Insurance - 81% compliant</li><li>✓ Driver Passport / Visa</li><li>✓ Vehicle Roadworthy</li><li>✓ DAFF if agriculture</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let trucks = [
+ {id:'LB-8812',company:'Grindrod',reg:'JY 45 RT GP',load:'Coal',tons:34,dest:'Maputo Port',ins:'Valid',insTo:'2026-12-01',sars:'SARS Cleared',bma:'BMA Ready',slot:'14:00',prio:'P1'},
+ {id:'LB-8813',company:'Thungela',reg:'BK 22 LP MP',load:'Coal',tons:32,dest:'Matola',ins:'Expired',insTo:'2025-11-01',sars:'Cleared',bma:'Blocked - Insurance',slot:'14:15',prio:'P3'},
+ {id:'LB-8814',company:'Glencore',reg:'MP 01 TR MP',load:'Chrome',tons:30,dest:'Maputo Port',ins:'Valid',insTo:'2026-09-15',sars:'Inspection Bay 2',bma:'Hold',slot:'14:30',prio:'P2'},
+ {id:'LB-8815',company:'Unitrans',reg:'ND 90 GP',load:'General',tons:12,dest:'Maputo City',ins:'Missing',insTo:'-',sars:'Pending SARS',bma:'Blocked',slot:'14:45',prio:'P4'},
+ {id:'LB-8816',company:'Barloworld',reg:'JY 10 MP',load:'Perishables',tons:18,dest:'Maputo City',ins:'Valid',insTo:'2026-08-30',sars:'Cleared',bma:'Ready - Priority',slot:'14:05',prio:'P1-Priority'},
+];
+function render(){
+  const qb=document.getElementById('queueBody'); const ab=document.getElementById('adminBody'); qb.innerHTML=''; ab.innerHTML='';
+  trucks.forEach((t,i)=>{
+    const insColor = t.ins==='Valid'?'bg-green-100 text-green-700 border-green-200': t.ins==='Expired'?'bg-red-100 text-red-700 border-red-200':'bg-amber-100 text-amber-700 border-amber-200';
+    const sarsColor = t.sars.includes('Cleared')?'text-green-700':'text-amber-700';
+    qb.innerHTML+=`<tr class="border-b hover:bg-slate-50"><td class="p-2.5 font-mono font-bold">${t.id}</td><td class="p-2.5">${t.company}<br><span class="text-slate-500 text-[11px]">${t.reg}</span></td><td class="p-2.5">${t.load}<br>${t.tons}t</td><td class="p-2.5">${t.dest}</td><td class="p-2.5"><span class="px-2 py-1 rounded-full border text-[10px] font-bold ${insColor}">${t.ins}</span><br><span class="text-[10px] text-slate-400">${t.insTo}</span></td><td class="p-2.5"><span class="${sarsColor}">${t.sars}</span><br><span class="text-slate-500">${t.bma}</span></td><td class="p-2.5"><button class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[11px]" onclick="showQR('${t.id}')">QR Pass</button></td></tr>`;
+    ab.innerHTML+=`<tr class="border-b hover:bg-slate-50"><td class="p-2">${i+1}</td><td class="p-2"><span class="bg-slate-900 text-white px-2 py-0.5 rounded text-[10px]">${t.prio}</span></td><td class="p-2">${t.company}<br><span class="text-[11px] text-slate-500">${t.reg}</span></td><td class="p-2">${t.load}</td><td class="p-2"><span class="px-2 py-0.5 rounded-full border text-[10px] ${insColor}">${t.ins}</span></td><td class="p-2"><span class="${sarsColor}">${t.sars}</span></td><td class="p-2">${t.slot}</td><td class="p-2 flex gap-1"><button class="bg-green-600 text-white px-2 py-1 rounded text-[10px]" onclick="callTruck('${t.id}')">Call</button><button class="bg-slate-100 px-2 py-1 rounded text-[10px]" onclick="moveUp(${i})">↑</button><button class="bg-slate-100 px-2 py-1 rounded text-[10px]" onclick="moveDown(${i})">↓</button><button class="bg-amber-100 px-2 py-1 rounded text-[10px]" onclick="holdTruck('${t.id}')">Hold</button></td></tr>`;
+  });
+}
+function moveUp(i){if(i>0){[trucks[i-1],trucks[i]]=[trucks[i],trucks[i-1]];render();}} function moveDown(i){if(i<trucks.length-1){[trucks[i+1],trucks[i]]=[trucks[i],trucks[i+1]];render();}}
+function callTruck(id){alert('TRAC: Truck '+id+' called to Lebombo Main Gate - Lane B assigned. SMS sent to driver + fleet manager. Camera at KM7 exit triggered.');}
+function holdTruck(id){alert('BMA: Truck '+id+' moved to inspection bay - SARS/DAFF check.');}
+function callNext(n){alert('TRAC Control: Next '+n+' pre-cleared trucks (Valid Insurance + SARS Cleared) called to border. N4 flow optimized.');}
+function showQR(id){const t=trucks.find(x=>x.id===id);if(t.ins!=='Valid'){alert('⛔ BLOCKED: '+id+' cannot generate QR - '+t.ins+' Seguro Obrigatório. Renew at KM7 Kiosk before border release (Decreto 2/2020).');return;}alert('✅ QR Border Pass: '+id+'\nCompany: '+t.company+'\nReg: '+t.reg+'\nLoad: '+t.load+' '+t.tons+'t\nInsurance: '+t.ins+' until '+t.insTo+'\nSARS: '+t.sars+'\nShow at KM7 exit + Lebombo One-Stop. Valid 2h.');}
+document.getElementById('bookingForm').addEventListener('submit', e=>{e.preventDefault(); const to=document.getElementById('insTo').value; const today=new Date().toISOString().split('T')[0]; let insStatus='Missing'; if(to){insStatus=to>=today?'Valid':'Expired';} if(insStatus!=='Valid'){document.getElementById('insBlock').classList.remove('hidden'); alert('Cannot create - Insurance invalid. Use KM7 Kiosk to issue.'); return;} const newT={id:'LB-'+Math.floor(1000+Math.random()*9000),company:document.getElementById('company').value||'NewCo',reg:document.getElementById('reg').value||'MP 00',load:document.getElementById('loadType').value,tons:document.getElementById('tons').value||'30',dest:document.getElementById('dest').value,ins:insStatus,insTo:to,sars:'SARS Cleared',bma:'BMA Ready',slot:document.getElementById('eta').value?document.getElementById('eta').value.slice(11,16):'15:30',prio:'P2'}; trucks.unshift(newT); render(); e.target.reset(); document.getElementById('insBadge').textContent='Enter Valid To date to validate'; document.getElementById('insBadge').className='flex items-center text-xs font-bold p-2.5 rounded-lg bg-slate-100 border'; document.getElementById('insBlock').classList.add('hidden'); alert('✅ Booking '+newT.id+' created - Insurance verified - QR ready - All agencies synced (BMA, SARS, INM)');});
+document.getElementById('insTo').addEventListener('change', ()=>{const v=document.getElementById('insTo').value; const today=new Date().toISOString().split('T')[0]; const badge=document.getElementById('insBadge'); const block=document.getElementById('insBlock'); if(!v){badge.textContent='Enter Valid To date';return;} if(v>=today){badge.textContent='✓ VALID - Seguro Obrigatório OK - Until '+v; badge.className='flex items-center text-xs font-bold p-2.5 rounded-lg bg-green-100 text-green-700 border border-green-200'; block.classList.add('hidden');}else{badge.textContent='⛔ EXPIRED - '+v+' - Renew at KM7'; badge.className='flex items-center text-xs font-bold p-2.5 rounded-lg bg-red-100 text-red-700 border border-red-200'; block.classList.remove('hidden');}});
+let selectedPrice='2400'; document.querySelectorAll('.buyBtn').forEach(b=>{b.addEventListener('click', ()=>{document.querySelectorAll('.buyBtn').forEach(x=>x.className='buyBtn border rounded-lg p-2.5 hover:bg-slate-50'); b.className='buyBtn border rounded-lg p-2.5 bg-orange-50 border-orange-400 ring-1 ring-orange-400'; selectedPrice=b.dataset.p1||b.textContent.match(/R(\d+)/)[1];});});
+document.getElementById('quickBuy').addEventListener('click', ()=>{document.getElementById('insurer').value='Other / Buy at KM7 Kiosk'; document.getElementById('policy').value='KM7-'+Date.now().toString().slice(-6); const d=new Date(); d.setDate(d.getDate()+30); document.getElementById('insTo').value=d.toISOString().split('T')[0]; document.getElementById('insFrom').value=new Date().toISOString().split('T')[0]; document.getElementById('cover').value='1500000'; document.getElementById('insBadge').textContent='✓ VALID - KM7 Issued R'+selectedPrice+' - 30 days'; document.getElementById('insBadge').className='flex items-center text-xs font-bold p-2.5 rounded-lg bg-green-100 text-green-700 border border-green-200'; document.getElementById('insBlock').classList.add('hidden'); alert('✅ KM7 Insurance issued - R'+selectedPrice+' for 30 days - Policy '+document.getElementById('policy').value+' - Synced to BMA & Mozambique INM instantly');});
+document.getElementById('btnTrans').addEventListener('click', ()=>{document.getElementById('transView').classList.remove('hidden');document.getElementById('adminView').classList.add('hidden');document.getElementById('btnTrans').className='px-4 py-2 rounded bg-white text-slate-900 font-semibold text-sm';document.getElementById('btnAdmin').className='px-4 py-2 rounded bg-slate-700 text-white font-semibold text-sm';});
+document.getElementById('btnAdmin').addEventListener('click', ()=>{document.getElementById('transView').classList.add('hidden');document.getElementById('adminView').classList.remove('hidden');document.getElementById('btnAdmin').className='px-4 py-2 rounded bg-white text-slate-900 font-semibold text-sm';document.getElementById('btnTrans').className='px-4 py-2 rounded bg-slate-700 text-white font-semibold text-sm';});
+document.getElementById('capRange').addEventListener('input', e=>{document.getElementById('capVal').textContent=e.target.value+' trucks / hour';});
+render();
+</script>
+<div style="text-align:center;padding:12px;font-size:11px;color:#666;border-top:1px solid #eee;margin-top:20px">Lebombo Fright Pass (Pty) Ltd - LFP | Founder: SJ Nkalanga (ID: 9104205760086) | 062 945 0883 | lebombofrightpass@gmail.com</div></body>
+</html>
